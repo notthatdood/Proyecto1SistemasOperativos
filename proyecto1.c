@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <regex.h>
-#define TOTAL_THREADS 3
+#define TOTAL_THREADS 4
 
 //Made using code adapted from: 
 // - https://stackoverflow.com/questions/13131982/create-thread-passing-arguments
@@ -57,58 +57,14 @@ void partitionString(long int start, long int portionSize, struct Lectura *sourc
     portion->content[j]=source->text[i];
     j++;
   }
-  //for (long int i = 0; i<portionSize; i++){
-  //  printf("%c", portion->content[i]);
-  //}
 }
 
-void *wordSillas(void *parameters){    
-  struct PortionStruct *portion;
-  portion = (struct PortionStruct *)parameters;
-  
-  regex_t preg;
-  printf("%s", portion->expression);
-  //no se que hacen estos tres------
-  int result;
-  size_t nmatch = 2;
-  regmatch_t pmatch[2];
-  //-------------------------------
-  /*
-  if (regcomp(&preg, portion->expression, 0)){
-  	//si retorna algo diferente de 0 es que hubo un error y entra aqui
-  	free(portion);
-    pthread_exit(NULL);
+void cutString(long int start, struct PortionStruct *portion, char *copy){
+  int j = 0;
+  for (long int i=start; i<portion->size; i++){
+    copy[j]=portion->content[i];
+    j++;
   }
-  
-  int result = regexec(&preg, portion->content, nmatch, pmatch, 0);
-  
-  if (result == 0){
-  	//Found a match
-  	//printf("Se encontro una coincidencia en la posicion %d \n", pmatch[1].rm_so);
-  	printf("With the sub-expression, "
-             "a matched substring \"%.*s\" is found at position %d to %d.\n",
-             pmatch[1].rm_eo - pmatch[1].rm_so, &portion->expression[pmatch[1].rm_so],
-             pmatch[1].rm_so, pmatch[1].rm_eo - 1);
-  }else if (result == REG_NOMATCH){
-  //Didn't find any matches
-  printf("No Matches");
-  }*/
-  regcomp(&preg, portion->expression, 0);
- 
-  regexec(&preg, portion->content, nmatch, pmatch, 0);
-   
-      printf("With the whole expression, "
-             "a matched substring \"%.*s\" is found at position %d to %d.\n",
-             pmatch[0].rm_eo - pmatch[0].rm_so, &portion->content[pmatch[0].rm_so],
-             pmatch[0].rm_so, pmatch[0].rm_eo - 1);
-      printf("With the sub-expression, "
-             "a matched substring \"%.*s\" is found at position %d to %d.\n",
-             pmatch[1].rm_eo - pmatch[1].rm_so, &portion->content[pmatch[1].rm_so],
-             pmatch[1].rm_so, pmatch[1].rm_eo - 1);
-   
-  free(portion);
-  regfree(&preg);
-  pthread_exit(NULL);
 }
 
 void copyString(int size, char *source, char *result){
@@ -116,6 +72,53 @@ void copyString(int size, char *source, char *result){
     result[i]=source[i];
   }
 }
+
+
+void *wordSillas(void *parameters ){    
+  struct PortionStruct *portion;
+  portion = (struct PortionStruct *)parameters;
+  
+  long int inicio;
+  long int final;
+  long int cutCounter = 0;
+  int hasMatch = 0;
+  regex_t preg;
+  size_t nmatch = 2;
+  regmatch_t pmatch[2];
+  char portionCopy[portion->size];
+  copyString(portion->size, portion->content, portionCopy);
+  //fgets(portion->content,300,); FUNCION PARA LEER POR PAGINA
+  
+  regcomp(&preg, portion->expression, REG_EXTENDED);
+ 	
+  while(1){
+  
+    hasMatch = regexec(&preg, portionCopy, nmatch, pmatch, 0);
+  
+    inicio =  (pmatch[0].rm_so) + portion->size * portion->threadNum;
+    final = (pmatch[0].rm_eo - 1) + portion->size * portion->threadNum;
+    
+    //break;
+    if (cutCounter >= portion->size){
+      break;
+    }else if (hasMatch != 0){
+      break;
+    }
+    printf("With the whole expression, "
+             "a matched substring \"%.*s\" is found at position %d to %d.\n",
+             pmatch[0].rm_eo - pmatch[0].rm_so, &portionCopy[pmatch[0].rm_so],
+             pmatch[0].rm_so, pmatch[0].rm_eo - 1);
+             
+    printf("inicio %lu \n", cutCounter + inicio);
+    printf("final %lu \n", cutCounter + final);
+    cutCounter += final;
+    cutString(cutCounter, portion, portionCopy);
+  }
+  free(portion);
+  regfree(&preg);
+  pthread_exit(NULL);
+}
+
 
 int main() {
   char fileName[] = "archivitodecente.txt";
@@ -143,12 +146,13 @@ int main() {
   	partitionString(startPosition, portionSize, &lecResult, portion);
   	portion->size = portionSize;
   	portion->threadNum = t;
-  	char input[100] = {'e' ,'s'};
-  	copyString(7, input, portion->expression);
+  	char input[100] = "utilizando";
+  	copyString(100, input, portion->expression);
   	//sportion->expression = {'a' ,'b','c','|','d','e','f'};
   	
   	//creating threads
     printf("In main: creating thread %ld\n", t);
+    
     if (pthread_create(&threads[t], NULL, wordSillas, (void *)portion)) {
       free(portion);
     }

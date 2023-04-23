@@ -1,4 +1,4 @@
-El objetivo de este proyecto es comparar el rendimiento de realizar una tarea colaborativa utilizando múltiples hilos. Para ello se deberá desarrollar una versión multihilos del programa llamado grep que permite buscar múltiples palabras sobre un archivo e imprimir el párrafo en dónde aparecen dichas palabras.
+El objetivo de este proyecto es comparar el rendimiento de realizar una tarea colaborativa utilizando multiples hilos. Para ello se debera desarrollar una version multihilos del programa llamado grep que permite buscar multiples palabras sobre un archivo e imprimir el párrafo en dónde aparecen dichas palabras.
 
 En este proyecto se deben realizar múltiples pruebas para determinar la cantidad óptima de hilos para ejecutar este tipo de tarea sobre un archivo muy grande.
 
