@@ -67,31 +67,54 @@ void *wordSillas(void *parameters){
   portion = (struct PortionStruct *)parameters;
   
   regex_t preg;
-  
-  //no se que hacen estos dos------
-  size_t     nmatch = 2;
+  printf("%s", portion->expression);
+  //no se que hacen estos tres------
+  int result;
+  size_t nmatch = 2;
   regmatch_t pmatch[2];
   //-------------------------------
-  
+  /*
   if (regcomp(&preg, portion->expression, 0)){
   	//si retorna algo diferente de 0 es que hubo un error y entra aqui
   	free(portion);
     pthread_exit(NULL);
-    return;
   }
   
-  int result = regexec;
+  int result = regexec(&preg, portion->content, nmatch, pmatch, 0);
   
   if (result == 0){
-  //Found a match
-  printf("Se encontro una coincidencia en la posicion %d \n", pmatch[1].rm_so);
+  	//Found a match
+  	//printf("Se encontro una coincidencia en la posicion %d \n", pmatch[1].rm_so);
+  	printf("With the sub-expression, "
+             "a matched substring \"%.*s\" is found at position %d to %d.\n",
+             pmatch[1].rm_eo - pmatch[1].rm_so, &portion->expression[pmatch[1].rm_so],
+             pmatch[1].rm_so, pmatch[1].rm_eo - 1);
   }else if (result == REG_NOMATCH){
   //Didn't find any matches
-  }
-  
+  printf("No Matches");
+  }*/
+  regcomp(&preg, portion->expression, 0);
+ 
+  regexec(&preg, portion->content, nmatch, pmatch, 0);
+   
+      printf("With the whole expression, "
+             "a matched substring \"%.*s\" is found at position %d to %d.\n",
+             pmatch[0].rm_eo - pmatch[0].rm_so, &portion->content[pmatch[0].rm_so],
+             pmatch[0].rm_so, pmatch[0].rm_eo - 1);
+      printf("With the sub-expression, "
+             "a matched substring \"%.*s\" is found at position %d to %d.\n",
+             pmatch[1].rm_eo - pmatch[1].rm_so, &portion->content[pmatch[1].rm_so],
+             pmatch[1].rm_so, pmatch[1].rm_eo - 1);
+   
   free(portion);
   regfree(&preg);
   pthread_exit(NULL);
+}
+
+void copyString(int size, char *source, char *result){
+  for (int i=0; i<size; i++){
+    result[i]=source[i];
+  }
 }
 
 int main() {
@@ -120,7 +143,9 @@ int main() {
   	partitionString(startPosition, portionSize, &lecResult, portion);
   	portion->size = portionSize;
   	portion->threadNum = t;
-  	portion->expression = "abc|def"
+  	char input[100] = {'e' ,'s'};
+  	copyString(7, input, portion->expression);
+  	//sportion->expression = {'a' ,'b','c','|','d','e','f'};
   	
   	//creating threads
     printf("In main: creating thread %ld\n", t);
