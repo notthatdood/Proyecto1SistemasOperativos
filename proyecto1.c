@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <regex.h>
-#define TOTAL_THREADS 4
+#define TOTAL_THREADS 6
 
 //Made using code adapted from: 
 // - https://stackoverflow.com/questions/13131982/create-thread-passing-arguments
@@ -105,12 +105,12 @@ void *wordSillas(void *parameters ){
       break;
     }
     printf("With the whole expression, "
-             "a matched substring \"%.*s\" is found at position %d to %d.\n",
+             "a matched substring \"%.*s\" is found at position %lu to %lu.\n",
              pmatch[0].rm_eo - pmatch[0].rm_so, &portionCopy[pmatch[0].rm_so],
-             pmatch[0].rm_so, pmatch[0].rm_eo - 1);
+             cutCounter + inicio, cutCounter + final);
              
-    printf("inicio %lu \n", cutCounter + inicio);
-    printf("final %lu \n", cutCounter + final);
+    //printf("inicio %lu \n", cutCounter + inicio);
+    //printf("final %lu \n", cutCounter + final);
     cutCounter += final;
     cutString(cutCounter, portion, portionCopy);
   }
@@ -121,7 +121,18 @@ void *wordSillas(void *parameters ){
 
 
 int main() {
+  
+  /*char input[100];
+  char fileName[100]; 
+  printf("escriba el nombre del archivo, ej archivo.txt : ");
+  fgets(fileName, 100, stdin);
+  printf("filename %s", fileName);
+  
+  printf("escriba la expresion regular, ej expresion|rendimiento : ");
+  fgets(input, 100, stdin);*/
+
   char fileName[] = "archivitodecente.txt";
+  char input[] = " es ";
   FILE *f = fopen(fileName, "r");
   
   //Reading
@@ -146,7 +157,7 @@ int main() {
   	partitionString(startPosition, portionSize, &lecResult, portion);
   	portion->size = portionSize;
   	portion->threadNum = t;
-  	char input[100] = "utilizando";
+  	
   	copyString(100, input, portion->expression);
   	//sportion->expression = {'a' ,'b','c','|','d','e','f'};
   	
