@@ -1,20 +1,20 @@
 El objetivo de este proyecto es comparar el rendimiento de realizar una tarea colaborativa utilizando multiples hilos. Para ello se debera desarrollar una version multihilos del programa llamado grep que permite buscar multiples palabras sobre un archivo e imprimir el párrafo en dónde aparecen dichas palabras.
 
-En este proyecto se deben realizar múltiples pruebas para determinar la cantidad óptima de hilos para ejecutar este tipo de tarea sobre un archivo muy grande.
+En este proyecto se deben realizar multiples pruebas para determinar la cantidad optima de hilos para ejecutar este tipo de tarea sobre un archivo muy grande.
 
 Uso del programa
-El programa grep recibe una expresión regular y una lista de archivos:
+El programa grep recibe una expresion regular y una lista de archivos:
 
 grep 'pattern1|pattern2|pattern3|...' archivo
 
-Por omisión el programa debe mostrar la línea del archivo en donde se encuentra la expresión regular.
+Por omision el programa debe mostrar la linea del archivo en donde se encuentra la expresion regular.
 
 Manejo de expresiones regulares
-El lenguaje C por sí mismo no maneja expresiones regulares, sin embargo se puede usar la librería "regex.h" que cuenta con las funciones regcomp y regexec que permiten realizar esta tarea. La función regcomp se debe ejecutar inicialmente y recibe la expresión regular ingresada por comando, luego la función regexec se debe ejecutar sobre cada una de las líneas del archivo.
+El lenguaje C por si mismo no maneja expresiones regulares, sin embargo se puede usar la libreria "regex.h" que cuenta con las funciones regcomp y regexec que permiten realizar esta tarea. La funcion regcomp se debe ejecutar inicialmente y recibe la expresion regular ingresada por comando, luego la funcion regexec se debe ejecutar sobre cada una de las lineas del archivo.
 
-Manejo de múltiples hilos
-El programa debe contar con múltiples hilos que se encarguen de inspeccionar el archivo. Debido a que las búsquedas se realizan sobre archivos de gran tamaño no sería eficiente crear un único hilo. Es por ello que      es necesario crear un conjunto compartido de hilos (pool de hilos) que incluya solo una cantidad limitada de hilos, y en donde cada hilo trabajará sobre un buffer propio en donde se debe leer una porción del archivo. Como parte del proyecto se deben realizar diferentes pruebas (con diferentes archivos grandes) para determinar un tamaño "óptimo" del pool de hilos. Se utilizará el tiempo de ejecución para determinar dicho tamaño óptimo.
+Manejo de multiples hilos
+El programa debe contar con multiples hilos que se encarguen de inspeccionar el archivo. Debido a que las busquedas se realizan sobre archivos de gran tamaño no seria eficiente crear un unico hilo. Es por ello que      es necesario crear un conjunto compartido de hilos (pool de hilos) que incluya solo una cantidad limitada de hilos, y en donde cada hilo trabajara sobre un buffer propio en donde se debe leer una porcion del archivo. Como parte del proyecto se deben realizar diferentes pruebas (con diferentes archivos grandes) para determinar un tamano "optimo" del pool de hilos. Se utilizara el tiempo de ejecucion para determinar dicho tamano optimo.
 
-En este caso se utilizará un pool de hilos estático, es decir, el programa creará la totalidad de los hilos al inicio del programa y únicamente utilizará estos para realizar todo el trabajo. Tal como usted debe suponer, a los hilos que terminen de buscar en su porción del archivo deberán leer otra parte del archivo para realizar la búsqueda hasta terminar con todo el archivo. Se debe tener especial cuidado de que dos o más hilos lean la misma porción del archivo, o bien, que traten de escribir al mismo tiempo en la salida.
+En este caso se utilizara un pool de hilos estatico, es decir, el programa creara la totalidad de los hilos al inicio del programa y unicamente utilizara estos para realizar todo el trabajo. Tal como usted debe suponer, a los hilos que terminen de buscar en su porcion del archivo deberan leer otra parte del archivo para realizar la busqueda hasta terminar con todo el archivo. Se debe tener especial cuidado de que dos o mas hilos lean la misma porcion del archivo, o bien, que traten de escribir al mismo tiempo en la salida.
 
-Note que al leer una porción del archivo puede suceder que una línea no sea leída completamente. Por eso cada hilo debe revisar si alguna línea se cortó, y actualizar el puntero de lectura del archivo (fseek) hasta el final de la última línea que se leyó completa.
+Note que al leer una porción del archivo puede suceder que una línea no sea leida completamente. Por eso cada hilo debe revisar si alguna linea se corto, y actualizar el puntero de lectura del archivo (fseek) hasta el final de la última línea que se leyó completa.

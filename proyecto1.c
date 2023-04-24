@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <regex.h>
-#define TOTAL_THREADS 6
+#define TOTAL_THREADS 8
 
 //Made using code adapted from: 
 // - https://stackoverflow.com/questions/13131982/create-thread-passing-arguments
@@ -10,11 +10,11 @@
 // - https://www.geeksforgeeks.org/regular-expressions-in-c/
 
 struct Lectura {
-  char text[1000000];
+  char text[5000000];
 };
 
 struct PortionStruct {
-  char content[100000];
+  char content[5000000];
   long int size;
   long int threadNum;
   char expression[100];
@@ -103,15 +103,18 @@ void *wordSillas(void *parameters ){
       break;
     }else if (hasMatch != 0){
       break;
+    }else if (cutCounter + inicio >= portion->size * portion->threadNum + portion->size){
+      break;
     }
+    //printf("borderTest %lu > %lu, ", inicio,portion->size * TOTAL_THREADS);
     printf("With the whole expression, "
-             "a matched substring \"%.*s\" is found at position %lu to %lu.\n",
+             "a matched substring \"%.*s\" is found at position %lu to %lu in thread %lu.\n",
              pmatch[0].rm_eo - pmatch[0].rm_so, &portionCopy[pmatch[0].rm_so],
-             cutCounter + inicio, cutCounter + final);
+             cutCounter + inicio, cutCounter + final, portion->threadNum);
              
     //printf("inicio %lu \n", cutCounter + inicio);
     //printf("final %lu \n", cutCounter + final);
-    cutCounter += final;
+    cutCounter += pmatch[0].rm_eo;
     cutString(cutCounter, portion, portionCopy);
   }
   free(portion);
@@ -131,8 +134,8 @@ int main() {
   printf("escriba la expresion regular, ej expresion|rendimiento : ");
   fgets(input, 100, stdin);*/
 
-  char fileName[] = "archivitodecente.txt";
-  char input[] = " es ";
+  char fileName[] = "prueba.txt";
+  char input[] = " eBooks ";
   FILE *f = fopen(fileName, "r");
   
   //Reading
